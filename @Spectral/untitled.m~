@@ -1,0 +1,23 @@
+classdef Spectral 
+    properties
+       % define the properties of the class here, (like fields of a struct)
+           k 
+           R
+           K
+           initial
+           wave
+           wold
+           density
+       
+    end
+    methods
+        function obj = Spectral(initial, P)
+               obj.initial = initial;
+               obj.wave = obj.initial;
+               obj.wold = obj.wave;
+               obj.density = real(conj(obj.wave).*obj.wave);
+               obj.k = fftshift(-P.res/2:P.res/2-1*2*pi/P.interval(2));
+               obj.K = exp(-0.5*obj.k.^2*P.timestep);
+               obj.R = exp(-0.5*(opr.V + myParam.c*abs(opr.w).^2)*xt_struct.dt);
+           end
+        

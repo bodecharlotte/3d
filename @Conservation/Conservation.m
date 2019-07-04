@@ -8,11 +8,12 @@ classdef Conservation
            mu = 0
            xrms = 0
            yrms = 0
+           zrms = 0
        end
        methods
        % methods, including the constructor are defined in this block
-           function obj = Conservation(E, P, Po, method, der)
-               obj = con(obj, E, P, Po, method, der);
+           function obj = Conservation(E, P, Po, der)
+               obj = con(obj, E, P, Po);
            end
           
        end

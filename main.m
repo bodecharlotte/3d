@@ -12,14 +12,30 @@ format long
     Co = constants;
     
     properties = struct();
-    P = Parameters(0.0005 ,100000, [-8,8], [-4,4], [-4,4], 128,  0, Co);
+    P = Parameters(0.005 ,700000, [-8,8], [-4,4], [-4,4], 64,  0, Co);
     
     [P.X, P.Y, P.Z]= meshgrid(P.x, P.y, P.z); 
     
     %Initialize Potentials
     Po = Potential(P,Co,har);
-%     figure(123)
-%     mesh(P.Y(:,:), P.Z(:,:), Po.pot(:,:))
+    figure(123)
+
+    subplot(3,1,1)
+    plot(reshape(P.X(end/2+1,:,end/2+1), [1,P.res]), reshape(Po.pot(end/2+1,:,end/2+1),[1,P.res]))
+%                 mesh(P.X(:,:), P.Y(:,:), psi.density(:,:))
+%                 mesh(P.X, P.Y, psi.density)
+   
+    
+    subplot(3,1,2)
+    plot(reshape(P.Y(:,end/2+1,end/2+1), [1,P.res]), reshape(Po.pot(:,end/2+1,end/2+1),[1,P.res]))
+%                 plot(reshape(P.Z(end/2+1,end/2+1,:), [1,P.res]), reshape(psi.density(end/2+1,end/2+1,:),[1,P.res]))
+%                 mesh(P.X(:,:), P.Z(:,:), psi.density(:,:))
+%                 plot(properties.ham(1:ln))
+    
+    subplot(3,1,3)
+    plot(reshape(P.Z(end/2+1,end/2+1,:), [1,P.res]), reshape(Po.pot(end/2+1,end/2+1,:),[1,P.res]))
+%                 mesh(P.Y(:,:), P.Z(:,:), psi.density(:,:))
+   
 
     %initialize matrix or spectral operators
 
@@ -49,12 +65,14 @@ format long
     psi.wold = psi.wave;
     Enold = properties.ham(1);
     t = 0;
+    properties.time(1) = t;
     count =0;
 
     tic
     % Perform BEFD
     for i = 1 :P.maxiterations
-        t = t + P.timestep_imag * i;
+        t = t + P.timestep;
+        properties.time(ln) = t;
 
 
         %Compute
@@ -104,27 +122,27 @@ format long
 %                 fprintf('elapsed_time_solve:     %f\n', elapsed_time_solve)
 %                 fprintf('\n')
 %          end
-        if(reldiff < 1e-16)
-            z=[properties.ham(ln), properties.mu(ln)]
-            fprintf('Ground state after %i timesteps\n', ln);
-            figure(1)
-            subplot(2,1,1)
-            mesh(P.X(:,:), P.Y(:,:), psi.density(:,:))
-            hold off
-            title(['time t= ', num2str(t)])
-            drawnow
-            subplot(2,1,2)
-            plot(properties.ham(1:ln))
-            hold off 
-            title('Energy Evolution imaginary timestepping')
-            drawnow
-
-            break
-        end
+%         if(reldiff < 1e-16)
+%             z=[properties.ham(ln), properties.mu(ln)]
+%             fprintf('Ground state after %i timesteps\n', ln);
+%             figure(1)
+%             subplot(2,1,1)
+%             mesh(P.X(:,:), P.Y(:,:), psi.density(:,:))
+%             hold off
+%             title(['time t= ', num2str(t)])
+%             drawnow
+%             subplot(2,1,2)
+%             plot(properties.ham(1:ln))
+%             hold off 
+%             title('Energy Evolution imaginary timestepping')
+%             drawnow
+% 
+%             break
+%         end
 
       
 
-        if mod(i, 10000) ==0
+        if mod(i, 2000) ==0
 
             P.timestep_imag = P.timestep_imag/2;
             psi.R = exp(-1i*(Po.pot + P.nonlinear*abs(psi.wave).^2)*P.timestep_imag/2);
@@ -135,7 +153,40 @@ format long
 
         %         plot energy and density
          %Plot while computing
-%             if mod(i,100)==0
+            if mod(i,500000)==0
+%                 figure(123)
+%                 pcolor(P.X(:,:), P.Y(:,:),psi.density(:,:))
+%                 colorbar;
+%                 shading interp;
+%                 xlabel('x')
+%                 ylabel('y')
+%                 title('Density')
+                figure(1)
+                subplot(4,1,1)
+                plot(reshape(P.X(end/2+1,:,end/2+1), [1,P.res]), reshape(psi.density(end/2+1,:,end/2+1),[1,P.res]))
+%                 mesh(P.X(:,:), P.Y(:,:), psi.density(:,:))
+%                 mesh(P.X, P.Y, psi.density)
+                hold off
+                title(['time t= ', num2str(t)])
+                drawnow
+                subplot(4,1,2)
+                plot(reshape(P.Y(:,end/2+1,end/2+1), [1,P.res]), reshape(psi.density(:,end/2+1,end/2+1),[1,P.res]))
+%                 plot(reshape(P.Z(end/2+1,end/2+1,:), [1,P.res]), reshape(psi.density(end/2+1,end/2+1,:),[1,P.res]))
+%                 mesh(P.X(:,:), P.Z(:,:), psi.density(:,:))
+%                 plot(properties.ham(1:ln))
+                hold off 
+%                 title('Energy Evolution imaginary timestepping')
+                drawnow
+                subplot(4,1,3)
+                plot(reshape(P.Z(end/2+1,end/2+1,:), [1,P.res]), reshape(psi.density(end/2+1,end/2+1,:),[1,P.res]))
+%                 mesh(P.Y(:,:), P.Z(:,:), psi.density(:,:))
+                hold off 
+                drawnow
+                subplot(4,1,4)
+                plot(properties.time(1:ln), properties.ham(1:ln))
+                hold off 
+%                 title('Energy Evolution imaginary timestepping')
+                drawnow
 %                 figure(1)
 %                 subplot(2,1,1)
 %                 mesh(P.X(:,:), P.Y(:,:), psi.density(:,:))
@@ -147,8 +198,8 @@ format long
 %                 hold off 
 %                 title('Energy Evolution imaginary timestepping')
 %                 drawnow
-% 
-%             end
+
+            end
 
 
         psi.wold = psi.wave;
@@ -164,15 +215,28 @@ format long
     fprintf('Time until Ground state in [ms] %f\n',t*1.37);
     fprintf('xrms, yrms: [%f %f]\n', [C.xrms, C.yrms]);
     fprintf('Relative energy and density error [%e %e]\n', [rele, reldiff]);
-    dlmwrite('exact2', psi.density, 'delimiter',',','-append', 'precision', 16)
+    dlmwrite('exact_3d_20000atoms_boxpot', psi.density, 'delimiter',',','-append', 'precision', 16)
+%     dlmwrite('groundstate_phys', z, 'delimiter',',','-append', 'precision', 16)
+%     
+%     figure(1)
+%     subplot(2,1,1)
+%     mesh(P.X(:,:), P.Y(:,:), psi.density(:,:))
+%     hold off
+%     title(['time t= ', num2str(t)])
+%     drawnow
+%     subplot(2,1,2)
+%     plot(properties.ham(1:ln))
+%     hold off 
+%     title('Energy Evolution imaginary timestepping')
+%     drawnow
 %     if method == 1
-%         dlmwrite('grounddata_Box_tssm', psi.density, 'delimiter',',','-append')
-%         s = 'timestep, maxiterations, count, rel energy, reldiff, energy, chem, xrms, yrms, har:';
-%         fid = fopen('grounddata_Box_tssm', 'a+');
-%         fprintf(fid, string(s));
-%         fclose(fid);
-%         dlmwrite('grounddata_Box_tssm',[real(P.timestep), real(P.maxiterations), real(count), real(rele), real(reldiff),...
-%             real(properties.ham(end)), real(properties.mu(end)), real(C.xrms) , real(C.yrms), real(har)], 'delimiter',',','-append')
+    dlmwrite('grounddata_Box_tssm', psi.density, 'delimiter',',','-append')
+    s = 'timestep, maxiterations, count, rel energy, reldiff, energy, chem, xrms, yrms, har:';
+    fid = fopen('grounddata_Box_tssm', 'a+');
+    fprintf(fid, string(s));
+    fclose(fid);
+    dlmwrite('grounddata_Box_tssm',[real(P.timestep), real(P.maxiterations), real(count), real(rele), real(reldiff),...
+        real(properties.ham(end)), real(properties.mu(end)), real(C.xrms) , real(C.yrms), real(har)], 'delimiter',',','-append')
 %     elseif method == 0
 %         dlmwrite('grounddata_Box_befd', psi.density, 'delimiter',',','-append')
 %         s = 'timestep, maxiterations, count, rel energy, reldiff, energy, chem, xrms, yrms, har:';
@@ -185,3 +249,16 @@ format long
 %     dlmwrite('mu_2nd', C.mu, 'delimiter',',','-append', 'precision', 16)
 %     dlmwrite('en_2nd', C.En, 'delimiter',',','-append', 'precision', 16)
 % end
+figure(23)
+subplot(3,1,1)
+mesh(P.X(:,:,end/2+1), P.Y(:,:,end/2+1),psi.density(:,:,end/2+1))
+xlabel('x')
+ylabel('y')
+subplot(3,1,2)
+mesh(reshape(P.Y(:,end/2+1,:), [P.res, P.res]),reshape(P.Z(:,end/2+1,:), [P.res, P.res]) ,reshape(psi.density(:,end/2+1,:), [P.res, P.res]) )
+xlabel('y')
+ylabel('z')
+subplot(3,1,3)
+mesh(reshape(P.X(end/2+1,:,:), [P.res, P.res]),reshape(P.Z(end/2+1,:,:), [P.res, P.res]) ,reshape(psi.density(end/2+1,:,:), [P.res, P.res]) )
+xlabel('x')
+ylabel('z')

@@ -12,7 +12,7 @@ format long
     Co = constants;
     
     properties = struct();
-    P = Parameters(0.005 ,700000, [-8,8], [-4,4], [-4,4], 64,  0, Co);
+    P = Parameters(0.005 ,700000, [-8,8], [-8,8], [-8,8], 64,  0, Co);
     
     [P.X, P.Y, P.Z]= meshgrid(P.x, P.y, P.z); 
     
@@ -215,7 +215,7 @@ format long
     fprintf('Time until Ground state in [ms] %f\n',t*1.37);
     fprintf('xrms, yrms: [%f %f]\n', [C.xrms, C.yrms]);
     fprintf('Relative energy and density error [%e %e]\n', [rele, reldiff]);
-    dlmwrite('exact_3d_20000atoms_boxpot', psi.density, 'delimiter',',','-append', 'precision', 16)
+    dlmwrite('exact_3d_20000atoms_boxpot_interval', psi.density, 'delimiter',',','-append', 'precision', 16)
 %     dlmwrite('groundstate_phys', z, 'delimiter',',','-append', 'precision', 16)
 %     
 %     figure(1)
@@ -249,16 +249,22 @@ format long
 %     dlmwrite('mu_2nd', C.mu, 'delimiter',',','-append', 'precision', 16)
 %     dlmwrite('en_2nd', C.En, 'delimiter',',','-append', 'precision', 16)
 % end
-figure(23)
+figure(24)
 subplot(3,1,1)
-mesh(P.X(:,:,end/2+1), P.Y(:,:,end/2+1),psi.density(:,:,end/2+1))
+pcolor(P.X(:,:,end/2+1), P.Y(:,:,end/2+1),psi.density(:,:,end/2+1))
+colorbar;
+shading interp;
 xlabel('x')
 ylabel('y')
 subplot(3,1,2)
-mesh(reshape(P.Y(:,end/2+1,:), [P.res, P.res]),reshape(P.Z(:,end/2+1,:), [P.res, P.res]) ,reshape(psi.density(:,end/2+1,:), [P.res, P.res]) )
+pcolor(reshape(P.Y(:,end/2+1,:), [P.res, P.res]),reshape(P.Z(:,end/2+1,:), [P.res, P.res]) ,reshape(psi.density(:,end/2+1,:), [P.res, P.res]) )
+colorbar;
+shading interp;
 xlabel('y')
 ylabel('z')
 subplot(3,1,3)
-mesh(reshape(P.X(end/2+1,:,:), [P.res, P.res]),reshape(P.Z(end/2+1,:,:), [P.res, P.res]) ,reshape(psi.density(end/2+1,:,:), [P.res, P.res]) )
+pcolor(reshape(P.X(end/2+1,:,:), [P.res, P.res]),reshape(P.Z(end/2+1,:,:), [P.res, P.res]) ,reshape(psi.density(end/2+1,:,:), [P.res, P.res]) )
+colorbar;
+shading interp;
 xlabel('x')
 ylabel('z')

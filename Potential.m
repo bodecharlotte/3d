@@ -22,6 +22,8 @@
                         pot_z= Co.height* ( tanh( 10 * (abs(P.Z)-width_z/2.0) ) +...
                             1.0 ) / 2.0;
                         obj.pot = pot_x + pot_y +pot_z;
+                        
+                       
                      elseif bin == 2
                          width_z = 6;
                          pot_x = 0.5*P.X.^2;
@@ -29,7 +31,24 @@
                         1.0 ) / 2.0;
                          pot_z = 0.5*P.Z.^2 + Co.omega_z/pi^(1/2)*exp(-P.Z.^2/2);
                          obj.pot = pot_x + pot_y + pot_z;
-                     end   
+                     elseif bin == 3
+                         obj.pot = zeros(P.res, P.res, P.res);
+                        for i = 1: length(P.x)
+                            if abs(P.x(i)) >=3
+                                obj.pot(:,i,:)= Co.height;
+                            end 
+                        end 
+                        for i = 1: length(P.y)
+                            if abs(P.y(i)) >=3
+                                obj.pot(i,:,:)= Co.height;
+                            end 
+                        end 
+                        for i = 1: length(P.z)
+                            if abs(P.z(i)) >=3
+                                obj.pot(:,:,i)= Co.height;
+                            end 
+                        end 
+                    end   
                end
            end
        
